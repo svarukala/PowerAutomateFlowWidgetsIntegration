@@ -252,7 +252,10 @@
             // add widget_ready event handler
             widget.listen("WIDGET_READY", function () {
                 console.log("The runtime flow widget is now ready.");
-                var flowId = "89293d98-9eaf-483c-824e-688130574562"; //-->ApprovalFlowTemplateForSelectedItem
+                var flowId = 
+                //"8cf64668-50aa-47db-9883-21ed468b5bfc" //Customerslist
+                //"70a9e128-b35c-4492-a042-19bba2fe1c65"; //-->Products For Selected Item
+                "89293d98-9eaf-483c-824e-688130574562"; //-->ApprovalFlowTemplateForSelectedItem
 
                 const rbs = document.querySelectorAll('input[name="site-list"]');
                 let selectedValue;
@@ -281,7 +284,6 @@
                     itemId = 1
                     itemUrl = "https://m365x229910.sharepoint.com/sites/NoGroupModernTeam04/_layouts/15/listform.aspx?PageType=4&ListId=%7BCDA40A27-7CBB-4856-AC7B-8CCA237115D5%7D&Source=https%3A%2F%2Fm365x229910.sharepoint.com%2Fsites%2FNoGroupModernTeam04%2FLists%2FIssuesList%2FAllItems.aspx&RootFolder=%2Fsites%2FNoGroupModernTeam04%2FLists%2FIssuesList&ID=1&ContentTypeId=0x0100B7E183F817FE5647A8603040E2606A64";                    
                     break;
-
                 }
                 console.log(itemUrl,itemId);
 
