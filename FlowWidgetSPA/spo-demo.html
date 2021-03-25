@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+    <head>
     <title>Flow JS SDK Sample</title>
      <style>
         .flowContainer iframe {
@@ -17,8 +17,11 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://flow.microsoft.com/Content/msflowsdk-1.1.js"></script>
 </head>
-
 <body>
+
+<h1>My First Heading</h1>
+<p>My first paragraph.</p>
+
 <button id="SignIn" onclick="signIn()">Sign In</button>
 <br/><br/>
 <table>
@@ -40,32 +43,10 @@
     </tr>
 </table>
 <br/>
-<button id="btnLoadFlows" onclick="loadFlowsWidget()" disabled>Load Flows widget</button>
-<button id="btnLoadTemplates" onclick="loadTemplatesWidget()" disabled>Load Templates widget</button>
-<button id="btnLoadApprovalCenter" onclick="loadApprovalsWidget()" disabled>Load ApprovalCenter widget</button>
-<button id="btnLoadRuntime" onclick="loadRuntimeWidget()" disabled>Load Runtime widget for Selected Item</button>
-<button id="btnLoadRuntimeForManualFlow" onclick="loadRuntimeWidgetForMaualFlow()" disabled>Load Runtime widget for Manual Flow</button>
-<button id="btnLoadRuntimeForSelectFile" type="button" onclick="loadRuntimeWidgetForSelectedFileFlow()" disabled>Load Runtime widget for Selected File</button>
-<br/><br/>
-
-<p>Select list:</p>
-<input type="radio" id="mts-tasks" name="site-list" value="MTSTasksList">
-<label for="mts-tasks">Modern Team Site - Tasks List</label> 
-<select id="items">
-    <option value="2">Item01</option>
-    <option value="3">Item02</option>
-    <option value="4">Item03</option>
-    <option value="5">Item04</option>
-</select>
-<br>
-<input type="radio" id="mts-hr" name="site-list" value="MTSHardwareList">
-<label for="mts-hr">Modern Team Site - HardwareRequest</label><br>
-<input type="radio" id="ngmt-issues" name="site-list" value="NGMTIssuesList">
-<label for="ngmt-issues">NoGroupModernTeam04 - IssuesList</label>
-
 
 <div id="flowsDiv" class="flowContainer"></div>
 <pre id="json"></pre>
+
 
 <script>
     var applicationConfig = {
@@ -102,7 +83,6 @@
       document.getElementById("btnLoadApprovalCenter").disabled = false;
       document.getElementById("btnLoadRuntime").disabled = false;
       document.getElementById("btnLoadRuntimeForManualFlow").disabled = false;
-      document.getElementById("btnLoadRuntimeForSelectFile").disabled = false;
       
    }
 
@@ -334,7 +314,6 @@
                     widget.notify('closeWidget', { flowName: flowId }).then(closeResult => console.log(closeResult)).catch(error => console.log(error));;
                 }).catch(error => console.log(error));
             });
-
     }
 
     function showUserDetails() {
@@ -357,50 +336,6 @@
                 myMSALObj.acquireTokenRedirect(applicationConfig.flowScopes);
             }
         }); 
-    }
-
-    // Create flowsruntime manual/button widget
-    function loadRuntimeWidgetForSelectedFileFlow(accessToken)
-    {
-        resetWidgetContainer();
-        var sdk = new window.MsFlowSdk({ hostName: window.location.origin, locale: 'en-us', hostId: window.WellKnownHostIds.WIDGETTEST });
-            var widget = sdk.renderWidget('flowsRuntime', {
-                container: 'flowsDiv',
-                enableRegionalPortal: true,
-                enableOnBehalfOfTokens: true,
-                flowsRuntimeSettings: {
-                    flowName: "1aeaeeec-b27b-4254-8279-b6b1d2ec6f59",
-                    implicitData: "",     
-                },
-            });
-
-            // add event handler to provide access token to the widget
-            widget.listen("GET_ACCESS_TOKEN", function (requestParam, widgetDoneCallback) {
-                widgetDoneCallback(null, {
-                    token: flowAccessToken 
-                });
-            });
-
-            // add widget_ready event handler
-            widget.listen("WIDGET_READY", function () {
-                console.log("The runtime flow widget is now ready.");
-                var flowId = "1aeaeeec-b27b-4254-8279-b6b1d2ec6f59"; //-->ApprovalFlowTemplateForSelectedFile
-
-                var itemId = 1;
-                var itemUrl = "https://m365x229910.sharepoint.com/:p:/r/sites/Client1/EDL3/ProjectY%20Intro.pptx?d=w0fb05c5a014f435e9215156699f2b851&csf=1&web=1&e=6RAjUD";
-                //"https://m365x229910.sharepoint.com/sites/cliclassicteam/_layouts/15/Doc.aspx?sourcedoc=%7B010b9db8-ecce-4f36-b908-451a40f27c3b%7D&action=edit&uid=%7B010B9DB8-ECCE-4F36-B908-451A40F27C3B%7D&ListItemId=1&ListId=%7BF1781056-844D-45D8-B2A0-441458E6F5B9%7D&odsp=1&env=prod";
-                var fileName = "ProjectY Intro.pptx";
-                //"Sessions-Planning.docx";
-
-                var listData = [{'ID': itemId,'itemUrl': itemUrl, 'fileName': fileName}];
-                widget.notify('getTriggerSchema', { flowName: flowId }).then(result => console.log(result)).catch(error => console.log(error));
-                widget.notify('triggerFlow', { flowName: flowId, implicitData: listData})
-                .then(result => {
-                    console.log("Trigger flow result:"+ result)
-                    widget.notify('closeWidget', { flowName: flowId }).then(closeResult => console.log(closeResult)).catch(error => console.log(error));;
-                }).catch(error => console.log(error));
-            });
-
     }
 
     // Browser check variables

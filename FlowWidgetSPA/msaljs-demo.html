@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Flow JS SDK Sample</title>
+    <style>
+        .flowContainer iframe {
+            width: 1000px;
+            height: 1000px;
+            min-height: 800px;
+            border: none;
+            overflow: hidden;
+            margin-left: 100px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>
+    <script src="https://alcdn.msauth.net/lib/1.2.1/js/msal.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://flow.microsoft.com/Content/msflowsdk-1.1.js"></script>
+</head>
+
+<body>
+
+
+    <div id="userInfo"></div>
+
+
+    <script>
+        var config = {
+            auth: {
+                clientId: "ba686da8-8cb8-4e41-9765-056a10dee34c",
+                authority: "https://login.microsoftonline.com/m365x229910.onmicrosoft.com"
+            },
+            cache: {
+                cacheLocation: "sessionStorage"
+            }
+        };
+
+        var graphConfig = {
+            graphEndPoint: "https://graph.microsoft.com/v1.0/me"
+        };
+
+        var requestPermissionScope = {
+            scopes: ["openid", "profile", "User.Read"],
+            loginHint: _spPageContextInfo.userLoginName,
+            extraQueryParameters: {domain_hint: 'organizations'}
+        };
+
+        var myMSALObj = new Msal.UserAgentApplication(config);
+        RetrieveAccessToken();
+        
+        function RetrieveAccessToken() {
+
+            myMSALObj.acquireTokenSilent(requestPermissionScope).then(function (result) {
+                if (result != undefined) {
+                    var headers = new Headers();
+                    var bearer = "Bearer " + result.accessToken;
+                    headers.append("Authorization", bearer);
+                    var options = {
+                        method: "GET",
+                        headers: headers
+                    };
+
+                    fetch(graphConfig.graphEndPoint, options)
+                        .then(function (response) {
+                            //do something with response  
+
+                            if (response.status == 200) {
+                                var data = response.json();
+                                data.then(function (userinfo) {
+                                    var printResponse = JSON.stringify(userinfo)
+                                    //Print the JSON string                        
+                                    //$("#userInfo").html(printResponse)  
+                                    var userInfo = document.getElementById('userInfo');
+                                    userInfo.innerHTML = printResponse;
+                                })
+                            }
+                        });
+                }
+                else{
+                    console.log("Result object is undefined");
+                }
+            }, function (failed){
+                console.log("Failed to get token silently");
+                console.log(failed);
+
+                //if (error.errorMessage.indexOf("interaction_required") !== -1) {
+                //myMSALObj.acquireTokenRedirect(accessTokenRequest);
+                //}
+
+                // fallback to interaction when silent call fails
+                myMSALObj.acquireTokenPopup(requestPermissionScope)
+                .then(tokenResponse => {
+                    console.log(tokenResponse);
+                }).catch(error => {
+                    console.log(error);
+                });
+
+            })
+        }
+
+    </script>
+</body>
+
+</html>

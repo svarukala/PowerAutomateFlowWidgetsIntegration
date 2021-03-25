@@ -1,35 +1,45 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Flow JS SDK Sample</title>
-     <style>
+    <style>
         .flowContainer iframe {
-            width: 1000px;
-            height: 1000px;
-            min-height: 800px;
-            border: none;
-            overflow: hidden;
-            margin-left: 100px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    color: rgb(50, 49, 48);
+    visibility: visible;
+    font-family: "Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+    font-weight: 400;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.22) 0px 25.6px 57.6px 0px, rgba(0, 0, 0, 0.18) 0px 4.8px 14.4px 0px;
+    pointer-events: auto;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden auto;
+    inset: 0px 0px 0px auto;
+    animation-name: css-33, css-41;
+    animation-duration: 0.367s;
+    animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1);
+    animation-fill-mode: both;
+    width: 340px;
+    height: 100%;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>
-    <script src="https://secure.aadcdn.microsoftonline-p.com/lib/0.2.3/js/msal.js"></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://flow.microsoft.com/Content/msflowsdk-1.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bluebird/3.3.4/bluebird.min.js"></script>
+    <script src="https://alcdn.msauth.net/lib/1.2.1/js/msal.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    
 </head>
 
 <body>
-<button id="SignIn" onclick="signIn()">Sign In</button>
-<br/><br/>
+
 <table>
-    <tr>
-        <td><b>Signed in as:</b></td>
-    </tr>
-    <tr>
-        <td>
-            <span id="spanUserName"></span>
-        </td>
-    </tr>
+
     <tr>
         <td><b>Access Token:</b></td>
     </tr>
@@ -39,72 +49,129 @@
     </td>
     </tr>
 </table>
+
 <br/>
-<button id="btnLoadFlows" onclick="loadFlowsWidget()" disabled>Load Flows widget</button>
-<button id="btnLoadTemplates" onclick="loadTemplatesWidget()" disabled>Load Templates widget</button>
-<button id="btnLoadApprovalCenter" onclick="loadApprovalsWidget()" disabled>Load ApprovalCenter widget</button>
-<button id="btnLoadRuntime" onclick="loadRuntimeWidget()" disabled>Load Runtime widget for Selected Item</button>
-<button id="btnLoadRuntimeForManualFlow" onclick="loadRuntimeWidgetForMaualFlow()" disabled>Load Runtime widget for Manual Flow</button>
-<button id="btnLoadRuntimeForSelectFile" type="button" onclick="loadRuntimeWidgetForSelectedFileFlow()" disabled>Load Runtime widget for Selected File</button>
+<button id="btnLoadFlows" type="button" onclick="loadFlowsWidget(); return false;" disabled>Load Flows widget</button>
+<button id="btnLoadTemplates" type="button" onclick="loadTemplatesWidget()" disabled>Load Templates widget</button>
+<button id="btnLoadApprovalCenter" type="button" onclick="loadApprovalsWidget()" disabled>Load ApprovalCenter widget</button>
+<button id="btnLoadRuntime" type="button" onclick="loadRuntimeWidget()" disabled>Load Runtime widget for Selected Item</button>
+<button id="btnLoadRuntimeForManualFlow" type="button" onclick="loadRuntimeWidgetForMaualFlow()" disabled>Load Runtime widget for Manual Flow</button>
+<input type='button' value='Get Item IDs' onclick="clickMethod();"/>
+<input type='button' value='Load Runtime widget for Selected File' onclick="loadRuntimeWidgetForSelectedFileFlow();"/>
+
+<button style="display:none" id="btnLoadRuntimeForSelectFile" type="button" onclick="loadRuntimeWidgetForSelectedFileFlow()" disabled>Load Runtime widget for Selected File</button>
 <br/><br/>
 
-<p>Select list:</p>
-<input type="radio" id="mts-tasks" name="site-list" value="MTSTasksList">
-<label for="mts-tasks">Modern Team Site - Tasks List</label> 
-<select id="items">
-    <option value="2">Item01</option>
-    <option value="3">Item02</option>
-    <option value="4">Item03</option>
-    <option value="5">Item04</option>
-</select>
-<br>
-<input type="radio" id="mts-hr" name="site-list" value="MTSHardwareList">
-<label for="mts-hr">Modern Team Site - HardwareRequest</label><br>
-<input type="radio" id="ngmt-issues" name="site-list" value="NGMTIssuesList">
-<label for="ngmt-issues">NoGroupModernTeam04 - IssuesList</label>
+<div id="flowsDiv" class="flowContainer">
 
 
-<div id="flowsDiv" class="flowContainer"></div>
+</div>
 <pre id="json"></pre>
 
-<script>
-    var applicationConfig = {
-        clientID: 'ba686da8-8cb8-4e41-9765-056a10dee34c', //This is your client ID
-        authority: "https://login.microsoftonline.com/common",  //Default authority value is https://login.microsoftonline.com/common
-        flowScopes: ["https://service.flow.microsoft.com//Flows.Read.All https://service.flow.microsoft.com//Flows.Manage.All"]
-    };
+    <script>
+        var config = {
+            auth: {
+                clientId: "ba686da8-8cb8-4e41-9765-056a10dee34c",
+                authority: "https://login.microsoftonline.com/m365x229910.onmicrosoft.com",
+                redirectUri:"https://m365x229910.sharepoint.com/sites/cliclassicteam/SiteAssets/blank.aspx"
+            },
+            cache: {
+                cacheLocation: "sessionStorage"
+            }
+        };
 
-    var flowAccessToken;
+        var graphConfig = {
+            graphEndPoint: "https://graph.microsoft.com/v1.0/me"
+        };
 
-    var myMSALObj = new Msal.UserAgentApplication(applicationConfig.clientID, applicationConfig.authority, acquireTokenRedirectCallBack,
-        {storeAuthStateInCookie: true, cacheLocation: "localStorage"});
+        var requestPermissionScope = {
+            scopes: ["openid", "profile", "User.Read"],
+            loginHint: _spPageContextInfo.userLoginName,
+            //extraQueryParameters: {domain_hint: 'organizations'}
+        };
 
-    function signIn() {
-        myMSALObj.loginPopup(applicationConfig.flowScopes).then(function (idToken) {
-            //Login Success
-            showUserDetails();
-            acquireTokenPopupAndLoadFlowsWidget();
-        }, function (error) {
-            console.log(error);
-        });
+        var requestFlowPermissionScope = {
+            scopes: ["https://service.flow.microsoft.com//Flows.Read.All https://service.flow.microsoft.com//Flows.Manage.All"],
+            loginHint: _spPageContextInfo.userLoginName,
+        };
+
+        var flowAccessToken;
+
+        var myMSALObj = new Msal.UserAgentApplication(config);
+        RetrieveAccessToken();
+        
+        function flowAccessTokenAcquired(accessToken) {
+            var txtAccessToken = document.getElementById('txtAccessToken');
+            txtAccessToken.value =  accessToken;
+            flowAccessToken = accessToken;
+            document.getElementById("btnLoadFlows").disabled = false;
+            document.getElementById("btnLoadTemplates").disabled = false;
+            document.getElementById("btnLoadApprovalCenter").disabled = false;
+            document.getElementById("btnLoadRuntime").disabled = false;
+            document.getElementById("btnLoadRuntimeForManualFlow").disabled = false;
+            document.getElementById("btnLoadRuntimeForSelectFile").disabled = false;
+        }
+
+        function RetrieveAccessToken() {
+
+            myMSALObj.acquireTokenSilent(requestFlowPermissionScope).then(function (result) {
+                if (result != undefined) {
+                    var headers = new Headers();
+                    var bearer = "Bearer " + result.accessToken;
+                    flowAccessTokenAcquired(result.accessToken);
+                    headers.append("Authorization", bearer);
+                    var options = {
+                        method: "GET",
+                        headers: headers
+                    };
+
+                    /*
+                    fetch(graphConfig.graphEndPoint, options)
+                        .then(function (response) {
+                            //do something with response  
+
+                            if (response.status == 200) {
+                                var data = response.json();
+                                data.then(function (userinfo) {
+                                    var printResponse = JSON.stringify(userinfo)
+                                    //Print the JSON string                        
+                                    //$("#userInfo").html(printResponse)  
+                                    var userInfo = document.getElementById('userInfo');
+                                    userInfo.innerHTML = printResponse;
+                                })
+                            }
+                        });
+                        */
+                }
+                else{
+                    console.log("Result object is undefined");
+                }
+            }, function (failed){
+                console.log("Failed to get token silently");
+                console.log(failed);
+
+                // fallback to interaction when silent call fails
+                return myMSALObj.acquireTokenPopup(requestFlowPermissionScope)
+                .then(tokenResponse => {
+                    console.log(tokenResponse);
+                }).catch(error => {
+                    console.log(error);
+                });
+
+            })
+        }
+
+    function clickMethod() {
+        var ctx = SP.ClientContext.get_current();
+        var items = SP.ListOperation.Selection.getSelectedItems(ctx);
+        var mySeletedItems = '';
+        var i;
+        for (i in items)
+        {
+        mySeletedItems += '|' + items[i].id;
+        }
+        alert (mySeletedItems);
     }
-
-    function signOut() {
-        myMSALObj.logout();
-    }
-
-   function flowAccessTokenAcquired(accessToken) {
-      var txtAccessToken = document.getElementById('txtAccessToken');
-      txtAccessToken.value =  accessToken;
-      flowAccessToken = accessToken;
-      document.getElementById("btnLoadFlows").disabled = false;
-      document.getElementById("btnLoadTemplates").disabled = false;
-      document.getElementById("btnLoadApprovalCenter").disabled = false;
-      document.getElementById("btnLoadRuntime").disabled = false;
-      document.getElementById("btnLoadRuntimeForManualFlow").disabled = false;
-      document.getElementById("btnLoadRuntimeForSelectFile").disabled = false;
-      
-   }
 
    function resetWidgetContainer()
    {
@@ -114,28 +181,7 @@
         }
    }
 
-   function acquireTokenRedirectCallBack() {
-        console.log("Token acquired successfully"); 
-   }
-
-   function acquireTokenPopupAndLoadFlowsWidget() {
-        //Call acquireTokenSilent (iframe) to obtain a token for Microsoft Flow
-        myMSALObj.acquireTokenSilent(applicationConfig.flowScopes).then(function (accessToken) {
-            flowAccessTokenAcquired(accessToken);
-        }, function (error) {
-            console.log(error);
-            // Call acquireTokenPopup (popup window) in case of acquireTokenSilent failure due to consent or interaction required ONLY
-            if (error.indexOf("consent_required") !== -1 || error.indexOf("interaction_required") !== -1 || error.indexOf("login_required") !== -1) {
-                myMSALObj.acquireTokenPopup(applicationConfig.flowScopes).then(function (accessToken) {
-                    flowAccessTokenAcquired(accessToken);
-                }, function (error) {
-                    console.log(error);
-                });
-            }
-        });
-    }
-
-    // Create Flows widget
+   // Create Flows widget
     function loadFlowsWidget(accessToken)
     {  
         resetWidgetContainer();
@@ -169,6 +215,7 @@
             });
 
     }
+
 
      // Create Templates widget
     function loadTemplatesWidget(accessToken)
@@ -337,28 +384,6 @@
 
     }
 
-    function showUserDetails() {
-        var divUserName = document.getElementById('spanUserName');
-        divUserName.innerHTML =  myMSALObj.getUser().name;
-        var loginbutton = document.getElementById('SignIn');
-        loginbutton.innerHTML = 'Sign Out';
-        loginbutton.setAttribute('onclick', 'signOut();');
-    }
-
-    // This function can be removed if you do not need to support IE
-    function acquireTokenRedirectAndLoadFlowsWidget() {
-        //Call acquireTokenSilent (iframe) to obtain a token for Microsoft Flow
-        myMSALObj.acquireTokenSilent(applicationConfig.flowScopes).then(function (accessToken) {
-          flowAccessTokenAcquired(accessToken)
-        }, function (error) {
-            console.log(error);
-            //Call acquireTokenRedirect in case of acquireToken Failure
-            if (error.indexOf("consent_required") !== -1 || error.indexOf("interaction_required") !== -1 || error.indexOf("login_required") !== -1) {
-                myMSALObj.acquireTokenRedirect(applicationConfig.flowScopes);
-            }
-        }); 
-    }
-
     // Create flowsruntime manual/button widget
     function loadRuntimeWidgetForSelectedFileFlow(accessToken)
     {
@@ -381,16 +406,32 @@
                 });
             });
 
+
+            
             // add widget_ready event handler
             widget.listen("WIDGET_READY", function () {
                 console.log("The runtime flow widget is now ready.");
                 var flowId = "1aeaeeec-b27b-4254-8279-b6b1d2ec6f59"; //-->ApprovalFlowTemplateForSelectedFile
+
 
                 var itemId = 1;
                 var itemUrl = "https://m365x229910.sharepoint.com/:p:/r/sites/Client1/EDL3/ProjectY%20Intro.pptx?d=w0fb05c5a014f435e9215156699f2b851&csf=1&web=1&e=6RAjUD";
                 //"https://m365x229910.sharepoint.com/sites/cliclassicteam/_layouts/15/Doc.aspx?sourcedoc=%7B010b9db8-ecce-4f36-b908-451a40f27c3b%7D&action=edit&uid=%7B010B9DB8-ECCE-4F36-B908-451A40F27C3B%7D&ListItemId=1&ListId=%7BF1781056-844D-45D8-B2A0-441458E6F5B9%7D&odsp=1&env=prod";
                 var fileName = "ProjectY Intro.pptx";
                 //"Sessions-Planning.docx";
+
+                var ctx = SP.ClientContext.get_current();
+                var items = SP.ListOperation.Selection.getSelectedItems(ctx);
+                itemId = parseInt(items[0].id);
+                var oList = ctx.get_web().get_lists().getById(_spPageContextInfo.pageListId);
+                var item = oList.getItemById(itemId);
+                ctx.load(item);
+                ctx.executeQueryAsync(function(){console.log("success"); 
+                itemUrl = _spPageContextInfo.portalUrl + item.get_fieldValues().FileRef;
+                fileName = item.get_fieldValues().FileLeafRef;
+                console.log(itemUrl);
+                console.log(itemId);
+                console.log(fileName);
 
                 var listData = [{'ID': itemId,'itemUrl': itemUrl, 'fileName': fileName}];
                 widget.notify('getTriggerSchema', { flowName: flowId }).then(result => console.log(result)).catch(error => console.log(error));
@@ -399,36 +440,25 @@
                     console.log("Trigger flow result:"+ result)
                     widget.notify('closeWidget', { flowName: flowId }).then(closeResult => console.log(closeResult)).catch(error => console.log(error));;
                 }).catch(error => console.log(error));
+
+
+
+                }, function(){console.log("failure");});
+                
+
+
+
+
             });
 
     }
 
-    // Browser check variables
-    var ua = window.navigator.userAgent;
-    var msie = ua.indexOf('MSIE ');
-    var msie11 = ua.indexOf('Trident/');
-    var msedge = ua.indexOf('Edge/');
-    var isIE = msie > 0 || msie11 > 0;
-    var isEdge = msedge > 0;
 
-    // If you support IE, our recommendation is that you sign-in using Redirect APIs
-    // If you as a developer are testing using Edge InPrivate mode, please add "isEdge" to the if check 
-    if (!isIE) {
-        if (myMSALObj.getUser()) {  // avoid duplicate code execution on page load in case of iframe and popup window.
-            showUserDetails();
-           acquireTokenPopupAndLoadFlowsWidget();
-        }
-    }
-    else {
-        document.getElementById("SignIn").onclick = function () {
-            myMSALObj.loginRedirect(applicationConfig.flowScopes);
-        };
+    </script>
 
-        if (myMSALObj.getUser() && !myMSALObj.isCallback(window.location.hash)) {// avoid duplicate code execution on page load in case of iframe and popup window.
-            showUserDetails();
-            acquireTokenRedirectAndLoadFlowsWidget();
-        }
-    }
-</script>
+
+
+
 </body>
+
 </html>
