@@ -250,6 +250,18 @@
                 });
             });
 
+            //Close the div on cancel clicked
+            widget.listen("RUN_FLOW_CANCEL_BUTTON_CLICKED", function(){
+                console.log("cancel button clicked");
+                $('#flowsDiv').empty();
+            });
+            
+            //Close the div on Done clicked
+            widget.listen("RUN_FLOW_DONE_BUTTON_CLICKED", function(){
+                console.log("cancel button clicked");
+                $('#flowsDiv').empty();
+            });
+
             // add widget_ready event handler
             widget.listen("WIDGET_READY", function () {
                 console.log("The runtime flow widget is now ready.");
@@ -323,6 +335,18 @@
                 });
             });
 
+            //Close the div on cancel clicked
+            widget.listen("RUN_FLOW_CANCEL_BUTTON_CLICKED", function(){
+                console.log("cancel button clicked");
+                $('#flowsDiv').empty();
+            });
+            
+            //Close the div on Done clicked
+            widget.listen("RUN_FLOW_DONE_BUTTON_CLICKED", function(){
+                console.log("cancel button clicked");
+                $('#flowsDiv').empty();
+            });
+
             // add widget_ready event handler
             widget.listen("WIDGET_READY", function () {
                 console.log("The runtime flow widget is now ready.");
@@ -380,6 +404,18 @@
                     token: flowAccessToken 
                 });
             });
+
+            //Close the div on cancel clicked
+            widget.listen("RUN_FLOW_CANCEL_BUTTON_CLICKED", function(){
+                console.log("cancel button clicked");
+                $('#flowsDiv').empty();
+            });
+            
+            //Close the div on Done clicked
+            widget.listen("RUN_FLOW_DONE_BUTTON_CLICKED", function(){
+                console.log("cancel button clicked");
+                $('#flowsDiv').empty();
+            });            
 
             // add widget_ready event handler
             widget.listen("WIDGET_READY", function () {
