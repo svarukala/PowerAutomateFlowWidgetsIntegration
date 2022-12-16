@@ -13,7 +13,7 @@ Install-Module -Name Microsoft.PowerApps.PowerShell -AllowClobber
 Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
 
 # Here is how you can pass in credentials (avoiding opening a prompt)
-$pass = ConvertTo-SecureString "PES@201909" -AsPlainText -Force
+$pass = ConvertTo-SecureString "********" -AsPlainText -Force
 Add-PowerAppsAccount -Username MeganB@M365x229910.OnMicrosoft.com -Password $pass
 
 Get-FlowEnvironment | Select *
